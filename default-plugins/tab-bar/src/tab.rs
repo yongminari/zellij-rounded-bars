@@ -69,7 +69,7 @@ pub fn render_tab(
     } else {
         style!(foreground_color, background_color).bold()
     };
-    let left_separator = style!(background_color, separator_fill_color).paint(if separator.is_empty() { "" } else { "" });
+    let left_separator = style!(separator_fill_color, background_color).paint(separator);
     let right_separator_style = style!(background_color, separator_fill_color);
     let mut tab_text_len = text.width() + (separator_width * 2) + 2; // +2 for padding
     let tab_styled_text = text_style.paint(format!(" {} ", text));

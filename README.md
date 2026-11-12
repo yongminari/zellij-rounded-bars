@@ -4,7 +4,7 @@ Native Zellij information and controls, with rounded tab and status bars.
 
 Derived from the `tab-bar` and `status-bar` plugins in **Zellij 0.45.1**. This is an independent community project, not an official Zellij release.
 
-- Rounded outer ends and internal tab, mode, and shortcut ribbons.
+- Rounded outer ends; internal tab, mode, and shortcut separators all curve to the right instead of forming capsules.
 - Parenthesized shortcut labels, such as `(p) PANE`, instead of `<p> PANE`.
 - Native tabs, scroll indicators, mode-sensitive hints, theme colors, and mouse actions.
 - Two prebuilt WASM files; no custom Zellij executable or local compilation required.
@@ -13,15 +13,15 @@ Derived from the `tab-bar` and `status-bar` plugins in **Zellij 0.45.1**. This i
 
 The first release targets **Zellij 0.45.1**. Other versions are not yet supported or tested. Use a Nerd Font / Powerline-compatible font for `` and ``. The default one-row top and bottom bars are recommended. Existing sessions retain their old plugin instances; start a new session after installation.
 
-## Install v0.1.0
+## Install v0.1.1
 
-Download `rounded-tab-bar.wasm` and `rounded-status-bar.wasm` from [Releases](https://github.com/yongminari/zellij-rounded-bars/releases/tag/v0.1.0), or run:
+Download `rounded-tab-bar.wasm` and `rounded-status-bar.wasm` from [Releases](https://github.com/yongminari/zellij-rounded-bars/releases/tag/v0.1.1), or run:
 
 ```sh
 mkdir -p "$HOME/.config/zellij/plugins"
-curl -fL https://github.com/yongminari/zellij-rounded-bars/releases/download/v0.1.0/rounded-tab-bar.wasm \
+curl -fL https://github.com/yongminari/zellij-rounded-bars/releases/download/v0.1.1/rounded-tab-bar.wasm \
   -o "$HOME/.config/zellij/plugins/rounded-tab-bar.wasm"
-curl -fL https://github.com/yongminari/zellij-rounded-bars/releases/download/v0.1.0/rounded-status-bar.wasm \
+curl -fL https://github.com/yongminari/zellij-rounded-bars/releases/download/v0.1.1/rounded-status-bar.wasm \
   -o "$HOME/.config/zellij/plugins/rounded-status-bar.wasm"
 ```
 

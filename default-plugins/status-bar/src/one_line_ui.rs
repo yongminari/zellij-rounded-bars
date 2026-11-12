@@ -1297,7 +1297,7 @@ fn hovered_ribbon_wrap(body: String, palette: Styling, supports_arrow_fonts: boo
     } else {
         ""
     };
-    let left = style!(ribbon_bg, outer_bg).paint(if arrow.is_empty() { "" } else { "" }).to_string();
+    let left = style!(outer_bg, ribbon_bg).paint(arrow).to_string();
     let right = style!(ribbon_bg, outer_bg).paint(arrow).to_string();
     format!("{}{}{}", left, body, right)
 }

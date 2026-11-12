@@ -64,16 +64,11 @@ def pump(seconds):
             stream.feed(data)
 
 
-def action(*args):
-    subprocess.run(
-        ["zellij", "--session", name, "action", *args],
-        check=True,
-        stdout=subprocess.DEVNULL,
-    )
-    pump(2)
-
-
 def dump(label):
+    for row in (screen.display[0], screen.display[-1]):
+        assert row.startswith("") and row.endswith(""), (label, row)
+        assert "" not in row[1:], (label, "internal left-facing cap", row)
+        assert not any(ch in row for ch in ""), (label, row)
     print(
         label, repr(screen.display[0]), repr(screen.display[-1]), sep="\n", flush=True
     )
@@ -99,18 +94,29 @@ try:
     assert screen.display[0].startswith("") and screen.display[0].endswith("")
     assert screen.display[-1].startswith("") and screen.display[-1].endswith("")
     assert "PANE" in screen.display[-1] and "RESIZE" in screen.display[-1]
+    # The first tab's left edge is a right-facing cutout: outer foreground,
+    # inner background. Checking colors prevents an outward cap on both sides.
+    edge_col = screen.display[0].index("")
+    assert screen.buffer[0][edge_col].fg == screen.buffer[0][0].fg
+    assert screen.buffer[0][edge_col].bg == screen.buffer[0][edge_col + 1].bg
     os.write(master, b"\x10")
     pump(2)
     dump("PANE")
     assert "Rename" in screen.display[-1]
     os.write(master, b"\x1b")
     pump(1)
-    action("new-tab", "--name", "second")
+    os.write(master, b"\x14")
+    pump(0.3)
+    os.write(master, b"n")
+    pump(3)
     dump("SECOND TAB")
-    assert "second" in screen.display[0]
+    assert "Tab #2" in screen.display[0]
     # Exercise the shifted new-tab button with an actual mouse event.
     col = screen.display[0].index("+") + 1
     pump(3)
+    os.write(master, f"\x1b[<35;{col};1M".encode())
+    pump(0.5)
+    dump("HOVER NEW TAB")
     os.write(master, f"\x1b[<0;{col};1M".encode())
     pump(0.2)
     os.write(master, f"\x1b[<0;{col};1m".encode())

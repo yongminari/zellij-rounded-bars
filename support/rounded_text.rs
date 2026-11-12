@@ -19,8 +19,9 @@ impl Text {
             colors.ribbon_unselected
         };
         let edge = format!("\x1b[0m{}{}", color(declaration.background, false), color(colors.text_unselected.background, true));
+        let left_edge = format!("\x1b[0m{}{}", color(colors.text_unselected.background, false), color(declaration.background, true));
         let body = format!("\x1b[0m{}{}{}", color(declaration.base, false), color(declaration.background, true), if self.disabled { "\x1b[3m" } else { "\x1b[1m" });
-        let mut output = format!("{}{}{} ", edge, if caps { "" } else { "" }, body);
+        let mut output = format!("{}{}{} ", left_edge, if caps { "" } else { "" }, body);
         let emphasis = [declaration.emphasis_0, declaration.emphasis_1, declaration.emphasis_2, declaration.emphasis_3];
         for (index, ch) in self.text.chars().enumerate() {
             output.push_str(&body);

@@ -147,7 +147,7 @@ fn left_more_message(
     } else {
         style!(text_color, palette.ribbon_unselected.background).bold()
     };
-    let left_separator = style!(palette.ribbon_unselected.background, sep_color).paint(if separator.is_empty() { "" } else { "" });
+    let left_separator = style!(sep_color, palette.ribbon_unselected.background).paint(separator);
     let more_styled_text = text_style.paint(more_text);
     let right_separator = style!(palette.ribbon_unselected.background, sep_color).paint(separator);
     let more_styled_text =
@@ -185,7 +185,7 @@ fn right_more_message(
     } else {
         style!(text_color, palette.ribbon_unselected.background).bold()
     };
-    let left_separator = style!(palette.ribbon_unselected.background, sep_color).paint(if separator.is_empty() { "" } else { "" });
+    let left_separator = style!(sep_color, palette.ribbon_unselected.background).paint(separator);
     let more_styled_text = text_style.paint(more_text);
     let right_separator = style!(palette.ribbon_unselected.background, sep_color).paint(separator);
     let more_styled_text =
@@ -518,7 +518,7 @@ fn new_tab_button_line_part(
     } else {
         style!(foreground_color, background_color).bold()
     };
-    let left_separator = style!(background_color, separator_fill_color).paint(if separator.is_empty() { "" } else { "" });
+    let left_separator = style!(separator_fill_color, background_color).paint(separator);
     let right_separator = style!(background_color, separator_fill_color).paint(separator);
     let text = "+";
     let styled_text = text_style.paint(format!(" {} ", text));
