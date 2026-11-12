@@ -1,0 +1,6 @@
+{
+  "repository": "https://github.com/zellij-org/zellij",
+  "tag": "v0.45.1",
+  "sourceHash": "sha256-pp++8CTIM4PuAYOjM7GnzU4TXTaw8XuDMow5k/7KQgY=",
+  "stableConfigurationCommit": "5777ba74f6b8f38b61945288c54aa7634ed816ea"
+}

@@ -1,0 +1,13 @@
+Zellij Rounded Bars is derived from Zellij v0.45.1 (MIT).
+Original project: https://github.com/zellij-org/zellij
+Copyright (c) 2020 Zellij contributors
+
+Derived source: default-plugins/tab-bar and default-plugins/status-bar.
+Build-time dependencies: the original Zellij v0.45.1 workspace and Cargo.lock.
+Modifications: rounded edges and ribbons, parenthesized shortcut labels,
+standalone-plugin permission handling, click-coordinate correction,
+reproducible build and release automation.
+
+This project is independently maintained by yongminari and is not an
+upstream or officially endorsed Zellij release. The upstream MIT license
+and copyright notice are included in LICENSE.
