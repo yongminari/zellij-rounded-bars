@@ -42,6 +42,30 @@ The release includes `SHA256SUMS`; download it alongside the two files and run `
 
 To uninstall, remove the two alias overrides and start a new session.
 
+## Track the latest stable release with Nix
+
+Add a flake input pointing to this repository's main branch:
+
+```nix
+inputs.zellij-rounded-bars.url = "github:yongminari/zellij-rounded-bars";
+inputs.zellij-rounded-bars.inputs.nixpkgs.follows = "nixpkgs";
+```
+
+Use `inputs.zellij-rounded-bars.packages.x86_64-linux.prebuilt` as the directory
+containing `rounded-tab-bar.wasm` and `rounded-status-bar.wasm`.
+This downloads verified release assets without compiling Rust.
+The default package remains the source build for development.
+
+`release.json` tracks the latest published stable release and its hashes.
+CI updates it after publishing; drafts, prereleases, and development source
+changes do not change the installed binaries. The release-index workflow can
+also be dispatched manually to retry a failed index update.
+
+Run `nix flake update zellij-rounded-bars` in your consuming configuration,
+then apply Home Manager. Your lock file preserves a reproducible snapshot;
+ordinary builds do not silently upgrade. Review Zellij compatibility when
+upgrading either Zellij or these plugins.
+
 ## Build and test
 
 A Nix flake pins both the upstream source and toolchain. The supported build host is x86_64 Linux; the resulting WASM plugins are portable, although runtime tests currently cover Linux only.

@@ -12,6 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       - uses: cachix/install-nix-action@d698718aa798980d17dd749f03beae0b51183399
+      - run: python tests/test_release_index.py
       - run: nix build
       - run: nix shell .#test-python .#zellij -c python tests/smoke.py result everforest-dark
       - run: nix shell .#test-python .#zellij -c python tests/smoke.py result everforest-light
@@ -28,10 +29,16 @@ jobs:
   release:
     if: startsWith(github.ref, 'refs/tags/v')
     needs: test
+    concurrency:
+      group: stable-release-index
+      cancel-in-progress: false
     runs-on: ubuntu-24.04
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: main
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
           name: rounded-bars
@@ -42,3 +49,7 @@ jobs:
           GH_REPO: ${{ github.repository }}
           RELEASE_TAG: ${{ github.ref_name }}
         run: gh release create "$RELEASE_TAG" dist/* --title "$RELEASE_TAG" --notes "Rounded native tab and status bars for Zellij 0.45.1. See the README for installation and first-launch permissions."
+      # GITHUB_TOKEN releases do not trigger the release event workflow.
+      - uses: ./.github/actions/update-release
+        env:
+          GH_TOKEN: ${{ github.token }}

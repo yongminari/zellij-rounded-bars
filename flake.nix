@@ -5,6 +5,16 @@
     let
       system = "x86_64-linux";
       pkgs = import nixpkgs { inherit system; };
+      release = builtins.fromJSON (builtins.readFile ./release.json);
+      prebuilt = pkgs.linkFarm "zellij-rounded-bars-${release.version}" (
+        pkgs.lib.mapAttrsToList (name: hash: {
+          inherit name;
+          path = pkgs.fetchurl {
+            url = "https://github.com/yongminari/zellij-rounded-bars/releases/download/v${release.version}/${name}";
+            inherit hash;
+          };
+        }) release.artifacts
+      );
       projectSource = pkgs.lib.fileset.toSource {
         root = ./.;
         fileset = pkgs.lib.fileset.unions [ ./default-plugins ./support ];
@@ -34,6 +44,7 @@
         };
     in {
       packages.${system} = {
+        inherit prebuilt;
         default = bars;
         rounded-bars = bars;
         test-python = pkgs.python3.withPackages (p: [ p.pyte ]);

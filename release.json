@@ -1,0 +1,7 @@
+{
+  "version": "0.1.1",
+  "artifacts": {
+    "rounded-tab-bar.wasm": "sha256-KMNxtnEXOUHkoVo5+qGYX9WKYOqybegK/DwvFdREkTg=",
+    "rounded-status-bar.wasm": "sha256-UDd9byBUShBiZfCHzqFfzME7HvS0zI0DOBrA/ny45m0="
+  }
+}

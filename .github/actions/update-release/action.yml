@@ -1,0 +1,15 @@
+name: Update stable release index
+description: Verify published assets and commit their hashes to main
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: |
+        python scripts/update-release.py
+        if ! git diff --quiet -- release.json; then
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add release.json
+          git commit -m "chore: update stable release index"
+          git push origin HEAD:main
+        fi
