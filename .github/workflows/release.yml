@@ -48,7 +48,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           RELEASE_TAG: ${{ github.ref_name }}
-        run: gh release create "$RELEASE_TAG" dist/* --title "$RELEASE_TAG" --notes "Rounded native tab and status bars for Zellij 0.45.1. See the README for installation and first-launch permissions."
+        run: |
+          if ! gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release create "$RELEASE_TAG" dist/* --title "$RELEASE_TAG" --notes "Rounded native tab and status bars for Zellij 0.45.1. See the README for installation and first-launch permissions."
+          fi
       # GITHUB_TOKEN releases do not trigger the release event workflow.
       - uses: ./.github/actions/update-release
         env:
