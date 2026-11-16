@@ -84,7 +84,18 @@ nix shell .#test-python .#zellij -c python tests/smoke.py result everforest-ligh
 
 This is a source-derived project, not runtime inheritance. Upstream fixes are **not** automatically merged. For an update, review the upstream plugin diff, port changes, update the pinned version and compatibility assertion, then run the build and runtime checks before releasing. Do not assume a new Zellij version is compatible merely because it builds.
 
-CI builds and tests both themes. Pushing a `v*` tag runs the same checks and publishes the two WASM files and checksums as a GitHub Release.
+CI builds and tests both themes, packages the WASM files and checksums, and uploads
+them as a workflow artifact. A separate `Verify packaged release` job downloads
+that artifact on a fresh Ubuntu runner, verifies `SHA256SUMS`, and runs both theme
+tests against the downloaded files. These checks run for main, pull requests,
+tag pushes, and manual runs.
+
+To rehearse a release without creating a tag or publishing a GitHub Release, open
+Actions → Build, test, and release → Run workflow and choose the branch to test.
+The same build and artifact verification jobs run; publishing and the stable
+release index update are skipped. This tests artifact transfer and plugin behavior,
+but does not test GitHub Release creation permissions or release-index writes.
+Only pushing a `v*` tag publishes the verified files as a GitHub Release.
 
 ## License and attribution
 

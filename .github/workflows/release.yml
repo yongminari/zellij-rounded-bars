@@ -4,6 +4,7 @@ on:
     branches: [main]
     tags: ['v*']
   pull_request:
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
@@ -21,14 +22,30 @@ jobs:
           mkdir dist
           cp result/*.wasm dist/
           cd dist
-          sha256sum *.wasm > SHA256SUMS
+          sha256sum -- *.wasm > SHA256SUMS
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: rounded-bars
           path: dist/*
-  release:
-    if: startsWith(github.ref, 'refs/tags/v')
+  verify-artifact:
+    name: Verify packaged release
     needs: test
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: cachix/install-nix-action@d698718aa798980d17dd749f03beae0b51183399
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: rounded-bars
+          path: dist
+      - name: Verify checksums
+        working-directory: dist
+        run: sha256sum --strict -c SHA256SUMS
+      - run: nix shell .#test-python .#zellij -c python tests/smoke.py dist everforest-dark
+      - run: nix shell .#test-python .#zellij -c python tests/smoke.py dist everforest-light
+  release:
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    needs: verify-artifact
     concurrency:
       group: stable-release-index
       cancel-in-progress: false
