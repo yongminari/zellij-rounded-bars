@@ -16,6 +16,23 @@ plugins {{
     status-bar location="file:{package}/rounded-status-bar.wasm"
 }}
 ''')
+if "--custom-bindings" in sys.argv[3:]:
+    with testconfig.open("a") as config:
+        config.write('''keybinds {
+    unbind "Ctrl g"
+    shared_except "locked" {
+        bind "Ctrl Shift h" { SwitchToMode "Locked"; }
+        bind "Alt n" { NewPane "Right"; }
+        bind "Alt h" { MoveFocusOrTab "Left"; }
+        bind "Alt l" { MoveFocusOrTab "Right"; }
+        bind "Alt j" { MoveFocus "Down"; }
+        bind "Alt k" { MoveFocus "Up"; }
+    }
+    locked {
+        bind "Ctrl Shift h" { SwitchToMode "Normal"; }
+    }
+}
+''')
 master, slave = pty.openpty()
 fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 30, 180, 0, 0))
 env = {
@@ -132,12 +149,40 @@ try:
     os.write(master, f"\x1b[<0;{col};1m".encode())
     wait_for_tab("Tab #3")
     dump("MOUSE NEW TAB")
-    os.write(master, b"\x07")
+    lock_key = b"\x1b[104;6u" if "--custom-bindings" in sys.argv[3:] else b"\x07"
+    os.write(master, lock_key)
     pump(2)
     dump("LOCKED")
     assert "LOCK" in screen.display[-1] and "PANE" not in screen.display[-1]
     assert screen.display[-1].startswith("") and screen.display[-1].endswith("")
     assert not any(ch in screen.display[0] + screen.display[-1] for ch in "<>")
+    os.write(master, lock_key)
+    pump(1)
+    for width in (100, 80, 60, 40, 20, 10, 6, 180):
+        screen.resize(lines=30, columns=width)
+        fcntl.ioctl(master, termios.TIOCSWINSZ, struct.pack("HHHH", 30, width, 0, 0))
+        pump(1)
+        row = screen.display[-1]
+        assert row.startswith("") and row.endswith(""), (width, row)
+        assert any(ch.isalnum() for ch in row), ("Empty narrow status bar", width, row)
+        if width == 40:
+            assert "Pa" in row, ("Missing pane shortcut", width, row)
+        print("RESIZE", width, repr(row), flush=True)
+    assert "PANE" in screen.display[-1] and "RESIZE" in screen.display[-1]
+    for mode, label in (("pane", "PANE"), ("locked", "LOCK")):
+        subprocess.run(
+            ["zellij", "--session", name, "action", "switch-mode", mode],
+            env=env, check=True,
+        )
+        pump(0.5)
+        for width in (40, 10, 180):
+            screen.resize(lines=30, columns=width)
+            fcntl.ioctl(master, termios.TIOCSWINSZ, struct.pack("HHHH", 30, width, 0, 0))
+            pump(1)
+            row = screen.display[-1]
+            assert row.startswith("") and row.endswith(""), (label, width, row)
+            assert label in row, (label, width, row)
+
     print("PASS", flush=True)
 finally:
     subprocess.run(

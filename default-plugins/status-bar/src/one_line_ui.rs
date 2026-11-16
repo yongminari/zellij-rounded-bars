@@ -585,6 +585,8 @@ fn render_mode_key_indicators(
                     );
                     if line_part_to_render.len + shortened_shortcut_list.len <= max_len {
                         line_part_to_render.append(&shortened_shortcut_list);
+                    } else {
+                        return Some(best_effort_mode_indicators(default_keys, help, max_len));
                     }
                 }
             }
@@ -599,6 +601,8 @@ fn render_mode_key_indicators(
                         shortened_modes_shortcut_list(&default_keys, help);
                     if line_part_to_render.len + shortened_shortcut_list.len <= max_len {
                         line_part_to_render.append(&shortened_shortcut_list);
+                    } else {
+                        return Some(best_effort_mode_indicators(default_keys, help, max_len));
                     }
                 }
             }
@@ -609,6 +613,45 @@ fn render_mode_key_indicators(
     } else {
         None
     }
+}
+
+// Keep useful controls when even the complete abbreviated list cannot fit.
+// Use full modifiers here because this fallback replaces the shared prefix too.
+fn best_effort_mode_indicators(
+    keys: &[KeyShortcut],
+    help: &ModeInfo,
+    max_len: usize,
+) -> LinePart {
+    let mut line = LinePart::default();
+    for key in keys.iter().filter(|key| key.is_selected()).chain(
+        keys.iter().filter(|key| !key.is_selected()),
+    ) {
+        let shortcut = add_shortcut(
+            help,
+            &key.short_text(),
+            &key.key.as_ref().map(|k| vec![k.clone()]).unwrap_or_default(),
+            key.is_selected(),
+            Some(3),
+        );
+        if line.len + shortcut.len <= max_len {
+            line.append(&shortcut);
+        }
+    }
+    if line.len == 0 {
+        // At tiny widths even one ribbon is too wide. A plain mode label
+        // still conveys state without splitting an ANSI or UI component.
+        let label: String = format!("{:?}", help.mode)
+            .to_uppercase()
+            .chars()
+            .take(max_len)
+            .collect();
+        let colors = help.style.colors.text_unselected;
+        return LinePart {
+            len: label.width(),
+            part: style!(colors.base, colors.background).bold().paint(label).to_string(),
+        };
+    }
+    line
 }
 
 fn full_inline_keys_modes_shortcut_list(
@@ -1847,8 +1890,10 @@ fn best_effort_shortcut_list(help: &ModeInfo, max_len: usize) -> LinePart {
     for (_, short, keys) in keys_and_hints.into_iter() {
         let shortcut = add_shortcut(help, &short, &keys.to_vec(), false, Some(2));
         if line_part.len + shortcut.len + MORE_MSG.chars().count() > max_len {
-            line_part.part = format!("{}{}", line_part.part, MORE_MSG);
-            line_part.len += MORE_MSG.chars().count();
+            if line_part.len + MORE_MSG.chars().count() <= max_len {
+                line_part.part = format!("{}{}", line_part.part, MORE_MSG);
+                line_part.len += MORE_MSG.chars().count();
+            }
             break;
         } else {
             line_part.append(&shortcut);

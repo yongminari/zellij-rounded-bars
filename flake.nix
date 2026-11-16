@@ -22,7 +22,7 @@
       bars = assert pkgs.zellij-unwrapped.version == "0.45.1";
         pkgs.pkgsCross.wasi32.rustPlatform.buildRustPackage {
           pname = "zellij-rounded-bars";
-          version = "0.1.1";
+          version = "0.1.4";
           inherit (pkgs.zellij-unwrapped) src cargoDeps;
           nativeBuildInputs = [ pkgs.python3 ];
           postPatch = ''

@@ -1,7 +1,7 @@
 {
-  "version": "0.1.3",
+  "version": "0.1.4",
   "artifacts": {
-    "rounded-tab-bar.wasm": "sha256-WyGVwS7RwD8/2kymUxujZgAaW6EmR1ftelTTZTHa6WA=",
-    "rounded-status-bar.wasm": "sha256-fowpNIL46E4JBVeA8DjoWA/iPFIRMZi53rS4+64ofDg="
+    "rounded-status-bar.wasm": "sha256-+Nnc6T2KQ/fTeogwyK8fgtmM2rn4TlpJnaWz2AZVt6c=",
+    "rounded-tab-bar.wasm": "sha256-WyGVwS7RwD8/2kymUxujZgAaW6EmR1ftelTTZTHa6WA="
   }
 }

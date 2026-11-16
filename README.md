@@ -7,6 +7,7 @@ Derived from the `tab-bar` and `status-bar` plugins in **Zellij 0.45.1**. This i
 - Rounded outer ends; internal tab, mode, and shortcut separators all curve to the right instead of forming capsules.
 - Parenthesized shortcut labels, such as `(p) PANE`, instead of `<p> PANE`.
 - Native tabs, scroll indicators, mode-sensitive hints, theme colors, and mouse actions.
+- Narrow status bars retain shortcuts that fit, prioritizing the active mode, and fall back to a mode label at tiny widths.
 - Two prebuilt WASM files; no custom Zellij executable or local compilation required.
 
 ## Preview
@@ -23,17 +24,17 @@ Captured from the running plugins in Zellij 0.45.1, using xterm and JetBrainsMon
 
 ## Compatibility
 
-The first release targets **Zellij 0.45.1**. Other versions are not yet supported or tested. Use a Nerd Font / Powerline-compatible font for `` and ``. The default one-row top and bottom bars are recommended. Existing sessions retain their old plugin instances; start a new session after installation.
+The build and CI target **Zellij 0.45.1**. The v0.1.4 resize and interaction smoke tests also passed locally on Zellij 0.46.0; other versions have not been tested. Use a Nerd Font / Powerline-compatible font for `` and ``. The default one-row top and bottom bars are recommended. Existing sessions retain their old plugin instances; start a new session after installation.
 
-## Install v0.1.1
+## Install v0.1.4
 
-Download `rounded-tab-bar.wasm` and `rounded-status-bar.wasm` from [Releases](https://github.com/yongminari/zellij-rounded-bars/releases/tag/v0.1.1), or run:
+Download `rounded-tab-bar.wasm` and `rounded-status-bar.wasm` from [Releases](https://github.com/yongminari/zellij-rounded-bars/releases/tag/v0.1.4), or run:
 
 ```sh
 mkdir -p "$HOME/.config/zellij/plugins"
-curl -fL https://github.com/yongminari/zellij-rounded-bars/releases/download/v0.1.1/rounded-tab-bar.wasm \
+curl -fL https://github.com/yongminari/zellij-rounded-bars/releases/download/v0.1.4/rounded-tab-bar.wasm \
   -o "$HOME/.config/zellij/plugins/rounded-tab-bar.wasm"
-curl -fL https://github.com/yongminari/zellij-rounded-bars/releases/download/v0.1.1/rounded-status-bar.wasm \
+curl -fL https://github.com/yongminari/zellij-rounded-bars/releases/download/v0.1.4/rounded-status-bar.wasm \
   -o "$HOME/.config/zellij/plugins/rounded-status-bar.wasm"
 ```
 
@@ -86,9 +87,10 @@ A Nix flake pins both the upstream source and toolchain. The supported build hos
 nix build
 nix shell .#test-python .#zellij -c python tests/smoke.py result everforest-dark
 nix shell .#test-python .#zellij -c python tests/smoke.py result everforest-light
+nix shell .#test-python .#zellij -c python tests/smoke.py result everforest-dark --custom-bindings
 ```
 
-`result/` contains the two release files. The PTY smoke test checks native information, rounded boundaries, mode transitions, and mouse creation of a new tab in an isolated test session. It kills and removes that test session afterward.
+`result/` contains the two release files. The PTY smoke test checks native information, rounded boundaries, mode transitions, resizing down to six columns and back, and mouse creation of a new tab in an isolated test session. It kills and removes that test session afterward.
 
 ## Development and upstream updates
 
