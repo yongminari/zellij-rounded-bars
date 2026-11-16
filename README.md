@@ -9,6 +9,18 @@ Derived from the `tab-bar` and `status-bar` plugins in **Zellij 0.45.1**. This i
 - Native tabs, scroll indicators, mode-sensitive hints, theme colors, and mouse actions.
 - Two prebuilt WASM files; no custom Zellij executable or local compilation required.
 
+## Preview
+
+**Everforest Dark**
+
+![Rounded tab bar with Editor, Tests, and Docs tabs, and the status bar in Everforest Dark](docs/images/everforest-dark.png)
+
+**Everforest Light**
+
+![Rounded tab bar with Editor, Tests, and Docs tabs, and the status bar in Everforest Light](docs/images/everforest-light.png)
+
+Captured from the running plugins in Zellij 0.45.1, using xterm and JetBrainsMono Nerd Font Mono. The tab bar is at the top; the status bar and native shortcuts are at the bottom.
+
 ## Compatibility
 
 The first release targets **Zellij 0.45.1**. Other versions are not yet supported or tested. Use a Nerd Font / Powerline-compatible font for `` and ``. The default one-row top and bottom bars are recommended. Existing sessions retain their old plugin instances; start a new session after installation.
