@@ -232,18 +232,12 @@ fn col_in_range(range: Option<(usize, usize)>, col: usize) -> bool {
 
 impl ZellijPlugin for State {
     fn load(&mut self, configuration: BTreeMap<String, String>) {
-        // File-loaded copies do not inherit the built-in plugins' permissions.
-        request_permission(&[
-            PermissionType::ReadApplicationState,
-            PermissionType::ChangeApplicationState,
-        ]);
         // TODO: Should be able to choose whether to use the cache through config.
         self.tip_name = get_cached_tip_name();
         self.classic_ui = configuration
             .get("classic")
             .map(|c| c == "true")
             .unwrap_or(false);
-        set_selectable(true);
         subscribe(&[
             EventType::PermissionRequestResult,
             EventType::ModeUpdate,
@@ -254,6 +248,15 @@ impl ZellijPlugin for State {
             EventType::SystemClipboardFailure,
             EventType::InitialKeybinds,
             EventType::Mouse,
+        ]);
+        // Plugin panes start selectable, so the first-launch permission prompt
+        // can receive input. Do not enqueue a redundant SetSelectable(true):
+        // Zellij may replay it after the permission handler disables selection
+        // while a new tab is being created. Subscribe before requesting cached
+        // permissions so the result is always observed.
+        request_permission(&[
+            PermissionType::ReadApplicationState,
+            PermissionType::ChangeApplicationState,
         ]);
     }
 

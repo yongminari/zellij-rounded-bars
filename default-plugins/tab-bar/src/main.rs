@@ -49,16 +49,10 @@ register_plugin!(State);
 
 impl ZellijPlugin for State {
     fn load(&mut self, configuration: BTreeMap<String, String>) {
-        // File-loaded copies do not inherit the built-in plugins' permissions.
-        request_permission(&[
-            PermissionType::ReadApplicationState,
-            PermissionType::ChangeApplicationState,
-        ]);
         self.hide_swap_layout_indication = configuration
             .get("hide_swap_layout_indication")
             .map(|s| s == "true")
             .unwrap_or(false);
-        set_selectable(true);
         subscribe(&[
             EventType::PermissionRequestResult,
             EventType::TabUpdate,
@@ -69,6 +63,15 @@ impl ZellijPlugin for State {
             EventType::HintText,
             EventType::Timer,
             EventType::InputReceived,
+        ]);
+        // Plugin panes start selectable, so the first-launch permission prompt
+        // can receive input. Do not enqueue a redundant SetSelectable(true):
+        // Zellij may replay it after the permission handler disables selection
+        // while a new tab is being created. Subscribe before requesting cached
+        // permissions so the result is always observed.
+        request_permission(&[
+            PermissionType::ReadApplicationState,
+            PermissionType::ChangeApplicationState,
         ]);
     }
 

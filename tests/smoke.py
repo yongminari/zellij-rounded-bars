@@ -22,6 +22,9 @@ env = {
     k: v for k, v in os.environ.items() if k not in ["ZELLIJ", "ZELLIJ_SESSION_NAME"]
 }
 env["TERM"] = "xterm-256color"
+# Exercise first-launch permissions independently of the developer's cache.
+for kind in ("CONFIG", "CACHE", "DATA"):
+    env[f"XDG_{kind}_HOME"] = str(Path(workspace.name) / kind.lower())
 
 
 def setup_tty():
@@ -30,7 +33,7 @@ def setup_tty():
 
 
 p = subprocess.Popen(
-    ["zellij", "--config", str(testconfig), "--session", name],
+    ["zellij", "--config-dir", workspace.name, "--config", str(testconfig), "--session", name],
     stdin=slave,
     stdout=slave,
     stderr=slave,
@@ -74,6 +77,13 @@ def dump(label):
     )
 
 
+def wait_for_tab(title, timeout=15):
+    deadline = time.monotonic() + timeout
+    while title not in screen.display[0] and time.monotonic() < deadline:
+        pump(0.1)
+    assert title in screen.display[0], ("Tab did not appear", title, screen.display)
+
+
 try:
     for _ in range(25):
         pump(1)
@@ -112,17 +122,16 @@ try:
     dump("SECOND TAB")
     assert "Tab #2" in screen.display[0]
     # Exercise the shifted new-tab button with an actual mouse event.
-    col = screen.display[0].index("+") + 1
     pump(3)
+    col = screen.display[0].index("+") + 1
     os.write(master, f"\x1b[<35;{col};1M".encode())
     pump(0.5)
     dump("HOVER NEW TAB")
     os.write(master, f"\x1b[<0;{col};1M".encode())
     pump(0.2)
     os.write(master, f"\x1b[<0;{col};1m".encode())
-    pump(3)
+    wait_for_tab("Tab #3")
     dump("MOUSE NEW TAB")
-    assert "Tab #3" in screen.display[0]
     os.write(master, b"\x07")
     pump(2)
     dump("LOCKED")
@@ -133,6 +142,7 @@ try:
 finally:
     subprocess.run(
         ["zellij", "kill-session", name],
+        env=env,
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
@@ -140,6 +150,7 @@ finally:
     os.close(master)
     subprocess.run(
         ["zellij", "delete-session", name],
+        env=env,
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
